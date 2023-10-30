@@ -3,6 +3,7 @@ import java.util.Properties;
 
 public class Main {
 
+    // database name.
     private static final String databaseName = "dbTest";
 
     public static void main(String[] args) throws SQLException {
@@ -31,7 +32,7 @@ public class Main {
         PreparedStatement preparedStatement = connection.prepareCall("SELECT * FROM tblUser");
 
         // setting up result set
-        // ResultSet resultSet = preparedStatement.executeQuery();
+        //ResultSet resultSet = preparedStatement.executeQuery(); // Read type.
         //preparedStatement.executeUpdate();
 
 
@@ -51,14 +52,13 @@ public class Main {
 
             resultSet.close();
         } catch (SQLException e) {
-            e.printStackTrace();
+
+
         }
 
 
 
 
     }
-
-
 
 }
