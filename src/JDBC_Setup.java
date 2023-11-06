@@ -26,7 +26,7 @@ public class JDBC_Setup {
 
     /***
      * Method used to close a database connection.
-     * @param connection
+     * @param connection object reference to the database.
      */
     public static void databaseClose(Connection connection){
         try {
@@ -39,9 +39,9 @@ public class JDBC_Setup {
 
     /***
      * method for creating a connection to a database
-     * @param properties
-     * @param URL
-     * @return
+     * @param properties for the database. (set in JDBC_Setup.class)
+     * @param URL connection string (set in JDBC_Setup.class)
+     * @return connection an obj with connection to the database.
      */
     public static Connection databaseConnection(Properties properties, String URL){
 
@@ -59,8 +59,6 @@ public class JDBC_Setup {
 
     }
     public static final String ANSI_RESET = "\u001B[0m";
-    public static final String ANSI_RED = "\u001B[31m";
-    public static final String ANSI_GREEN = "\u001B[32m";
     public static final String ANSI_YELLOW = "\u001B[33m";
 
 }
