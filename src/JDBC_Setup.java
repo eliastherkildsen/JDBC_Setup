@@ -1,28 +1,62 @@
-// @auth Elias B. Therkildsen 05.11.2023
+package com.dmuproject.util.Database;
 
+// @auth Elias B. Therkildsen 22.12.2023
+
+import com.dmuproject.util.AnsiColorCode;
+
+import java.io.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
-public class JDBC_Setup {
+public class JDBC {
+    private String URL;
+    private Connection connection;
+    private String DATBASE_PROPS_PATH = "src/main/java/com/dmuproject/util/Database/db.properties";
 
-    public static final String USERNAME = "sa";
-    public static final String PASSWORD = "1234";
-    public static final String DATABASE_NAME = "dbChrono5";
-    public static final String PORT = "1433";
-    public static final String ENCRYPT = "false";
-    public static final String URL = "jdbc:sqlserver://localhost:"+ PORT +";databaseName="+DATABASE_NAME;
 
-    public static Properties setProps(){
-        // creating an intestines of properties.
+    public JDBC(){
+        connection = createConnection(setProps());
+    }
+
+    private Properties setProps(){
+
+        // ConsoleLog
+        System.out.printf("%s[JDBC] Trying to setup props.%s%n", AnsiColorCode.ANSI_YELLOW, AnsiColorCode.ANSI_RESET);
+
         Properties properties = new Properties();
-        properties.setProperty("user", USERNAME);
-        properties.setProperty("password", PASSWORD);
-        properties.setProperty("encrypt", ENCRYPT);
+        File file = new File(DATBASE_PROPS_PATH);
+        InputStream input;
 
-        databaseConnection(properties, URL);
-        System.out.printf("%sSetting up props.%s%n", ANSI_YELLOW, ANSI_RESET);
+
+        try {
+            input = new FileInputStream(file);
+            try {
+
+                properties.load(input);
+
+                properties.setProperty("user", properties.getProperty("userName"));
+                properties.setProperty("password", properties.getProperty("password"));
+                properties.setProperty("encrypt", properties.getProperty("ENCRYPT"));
+
+                String DATABASE_NAME = properties.getProperty("databaseName");
+                String PORT = properties.getProperty("port");
+
+                URL = "jdbc:sqlserver://localhost:"+ PORT +";databaseName="+DATABASE_NAME;
+
+                System.out.printf("%s[JDBC] successful in setting up props! %s%n", AnsiColorCode.ANSI_YELLOW, AnsiColorCode.ANSI_RESET);
+
+            } catch (IOException e) {
+                System.out.printf("%s[JDBC] Error! ' %s%n", AnsiColorCode.ANSI_RED, AnsiColorCode.ANSI_RESET);
+                throw new RuntimeException(e);
+            }
+
+        } catch (FileNotFoundException e) {
+            System.out.printf("%s[JDBC] failed to finde the file 'db.properties' %s%n", AnsiColorCode.ANSI_RED, AnsiColorCode.ANSI_RESET);
+            throw new RuntimeException(e);
+        }
+
         return properties;
     }
 
@@ -30,22 +64,21 @@ public class JDBC_Setup {
      * Method used to close a database connection.
      * @param connection object reference to the database.
      */
-    public static void databaseClose(Connection connection){
+    public void databaseClose(Connection connection){
         try {
             connection.close();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        System.out.printf("%sClosing connection to JDBC..%s", ANSI_YELLOW, ANSI_RESET);
+        System.out.printf("%sClosing connection to JDBC..%s", AnsiColorCode.ANSI_YELLOW, AnsiColorCode.ANSI_RESET);
     }
 
     /***
      * method for creating a connection to a database
      * @param properties for the database. (set in JDBC_Setup.class)
-     * @param URL connection string (set in JDBC_Setup.class)
      * @return connection an obj with connection to the database.
      */
-    public static Connection databaseConnection(Properties properties, String URL){
+    private Connection createConnection(Properties properties){
 
         // initializes connection.
         Connection connection = null;
@@ -56,11 +89,12 @@ public class JDBC_Setup {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        System.out.printf("%sCreating connection.%s%n", ANSI_YELLOW, ANSI_RESET);
+        System.out.printf("%sCreating connection.%s%n", AnsiColorCode.ANSI_YELLOW, AnsiColorCode.ANSI_RESET);
         return connection;
 
     }
-    public static final String ANSI_RESET = "\u001B[0m";
-    public static final String ANSI_YELLOW = "\u001B[33m";
 
+    public Connection getConnection() {
+        return connection;
+    }
 }
