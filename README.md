@@ -37,6 +37,7 @@ The db.properties file should include the following properties:
 `password` The password for connecting to the database.<br />
 `ENCRYPT` Encryption setting for the connection.<br />
 `databaseName` The name of the database.<br />
+`IP` The IP of the database.<br />
 `port` The port number for the database connection.<br />
 
 ### Drivers
