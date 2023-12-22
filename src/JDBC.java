@@ -31,7 +31,9 @@ public class JDBC {
 
 
         try {
+
             input = new FileInputStream(file);
+
             try {
 
                 properties.load(input);
@@ -42,8 +44,9 @@ public class JDBC {
 
                 String DATABASE_NAME = properties.getProperty("databaseName");
                 String PORT = properties.getProperty("port");
+                String IP = properties.getProperty("IP");
 
-                URL = "jdbc:sqlserver://localhost:"+ PORT +";databaseName="+DATABASE_NAME;
+                URL = "jdbc:sqlserver://"+ IP +":"+ PORT +";databaseName="+DATABASE_NAME;
 
                 System.out.printf("%s[JDBC] successful in setting up props! %s%n", AnsiColorCode.ANSI_YELLOW, AnsiColorCode.ANSI_RESET);
 
@@ -53,7 +56,7 @@ public class JDBC {
             }
 
         } catch (FileNotFoundException e) {
-            System.out.printf("%s[JDBC] failed to finde the file 'db.properties' %s%n", AnsiColorCode.ANSI_RED, AnsiColorCode.ANSI_RESET);
+            System.out.printf("%s[JDBC] failed to find the file 'db.properties' %s%n", AnsiColorCode.ANSI_RED, AnsiColorCode.ANSI_RESET);
             throw new RuntimeException(e);
         }
 
@@ -62,15 +65,19 @@ public class JDBC {
 
     /***
      * Method used to close a database connection.
-     * @param connection object reference to the database.
      */
-    public void databaseClose(Connection connection){
+    public void databaseClose(){
+
         try {
+
             connection.close();
+
         } catch (SQLException e) {
+
             throw new RuntimeException(e);
+
         }
-        System.out.printf("%sClosing connection to JDBC..%s", AnsiColorCode.ANSI_YELLOW, AnsiColorCode.ANSI_RESET);
+        System.out.printf("%s[JDBC] Closing connection to JDBC..%s", AnsiColorCode.ANSI_YELLOW, AnsiColorCode.ANSI_RESET);
     }
 
     /***
@@ -89,7 +96,7 @@ public class JDBC {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        System.out.printf("%sCreating connection.%s%n", AnsiColorCode.ANSI_YELLOW, AnsiColorCode.ANSI_RESET);
+        System.out.printf("%s[JDBC] Creating connection.%s%n", AnsiColorCode.ANSI_YELLOW, AnsiColorCode.ANSI_RESET);
         return connection;
 
     }
