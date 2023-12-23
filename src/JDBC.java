@@ -1,9 +1,11 @@
-package com.dmuproject.util.Database;
-
-// @auth Elias B. Therkildsen 22.12.2023
-
-import com.dmuproject.util.AnsiColorCode;
-
+/**
+ * The JDBC class provides functionality to connect to a SQL database using JDBC.
+ * It reads database connection properties from a configuration file and creates a connection.
+ *
+ * @author Elias B. Therkildsen
+ * @version 1.0
+ * @since 22.12.2023
+ */
 import java.io.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -11,96 +13,106 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 public class JDBC {
+
+    // ANSI color codes for console output
+    private static final String ANSI_RESET = "\u001B[0m";
+    private static final String ANSI_YELLOW = "\u001B[33m";
+    private static final String ANSI_RED = "\u001B[31m";
+
+    // Path to the database properties file
+    private String DATBASE_PROPS_PATH = "src/util/Database/db.properties";
+
+    // Database connection URL
     private String URL;
+
+    // Connection object to interact with the database
     private Connection connection;
-    private String DATBASE_PROPS_PATH = "src/main/java/com/dmuproject/util/Database/db.properties";
 
-
-    public JDBC(){
+    /**
+     * Constructs a JDBC instance and initializes a database connection.
+     */
+    public JDBC() {
         connection = createConnection(setProps());
     }
 
-    private Properties setProps(){
-
-        // ConsoleLog
-        System.out.printf("%s[JDBC] Trying to setup props.%s%n", AnsiColorCode.ANSI_YELLOW, AnsiColorCode.ANSI_RESET);
+    /**
+     * Reads database properties from a configuration file and sets up a Properties object.
+     *
+     * @return Properties object containing database connection properties.
+     * @throws RuntimeException if an error occurs during file reading or property setting.
+     */
+    private Properties setProps() {
+        System.out.printf("%s[JDBC] Trying to setup props.%s%n", ANSI_YELLOW, ANSI_RESET);
 
         Properties properties = new Properties();
         File file = new File(DATBASE_PROPS_PATH);
         InputStream input;
 
-
         try {
-
             input = new FileInputStream(file);
-
             try {
-
                 properties.load(input);
-
-                properties.setProperty("user", properties.getProperty("userName"));
+                properties.setProperty("user", properties.getProperty("user"));
                 properties.setProperty("password", properties.getProperty("password"));
-                properties.setProperty("encrypt", properties.getProperty("ENCRYPT"));
+                properties.setProperty("encrypt", properties.getProperty("encrypt"));
 
                 String DATABASE_NAME = properties.getProperty("databaseName");
                 String PORT = properties.getProperty("port");
-                String IP = properties.getProperty("IP");
+                String IP = properties.getProperty("ip");
 
-                URL = "jdbc:sqlserver://"+ IP +":"+ PORT +";databaseName="+DATABASE_NAME;
+                URL = "jdbc:sqlserver://" + IP + ":" + PORT + ";databaseName=" + DATABASE_NAME;
 
-                System.out.printf("%s[JDBC] successful in setting up props! %s%n", AnsiColorCode.ANSI_YELLOW, AnsiColorCode.ANSI_RESET);
+                System.out.printf("%s[JDBC] Successful in setting up props! %s%n", ANSI_YELLOW, ANSI_RESET);
 
             } catch (IOException e) {
-                System.out.printf("%s[JDBC] Error! ' %s%n", AnsiColorCode.ANSI_RED, AnsiColorCode.ANSI_RESET);
+                System.out.printf("%s[JDBC] Error! ' %s%n", ANSI_RED, ANSI_RESET);
                 throw new RuntimeException(e);
             }
-
         } catch (FileNotFoundException e) {
-            System.out.printf("%s[JDBC] failed to find the file 'db.properties' %s%n", AnsiColorCode.ANSI_RED, AnsiColorCode.ANSI_RESET);
+            System.out.printf("%s[JDBC] Failed to find the file 'db.properties' %s%n", ANSI_RED, ANSI_RESET);
             throw new RuntimeException(e);
         }
 
         return properties;
     }
 
-    /***
-     * Method used to close a database connection.
+    /**
+     * Closes the database connection.
+     *
+     * @throws RuntimeException if an error occurs while closing the connection.
      */
-    public void databaseClose(){
-
+    public void databaseClose() {
         try {
-
             connection.close();
-
         } catch (SQLException e) {
-
             throw new RuntimeException(e);
-
         }
-        System.out.printf("%s[JDBC] Closing connection to JDBC..%s", AnsiColorCode.ANSI_YELLOW, AnsiColorCode.ANSI_RESET);
+        System.out.printf("%s[JDBC] Closing connection to JDBC..%s", ANSI_YELLOW, ANSI_RESET);
     }
 
-    /***
-     * method for creating a connection to a database
-     * @param properties for the database. (set in JDBC_Setup.class)
-     * @return connection an obj with connection to the database.
+    /**
+     * Creates a database connection using the specified properties.
+     *
+     * @param properties Properties object containing database connection properties.
+     * @return Connection object representing the connection to the database.
+     * @throws RuntimeException if an error occurs while creating the connection.
      */
-    private Connection createConnection(Properties properties){
-
-        // initializes connection.
+    private Connection createConnection(Properties properties) {
         Connection connection = null;
-
-        // JDBC tries to connect to SQL database add URL.
         try {
             connection = DriverManager.getConnection(URL, properties);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        System.out.printf("%s[JDBC] Creating connection.%s%n", AnsiColorCode.ANSI_YELLOW, AnsiColorCode.ANSI_RESET);
+        System.out.printf("%s[JDBC] Creating connection.%s%n", ANSI_YELLOW, ANSI_RESET);
         return connection;
-
     }
 
+    /**
+     * Gets the current database connection.
+     *
+     * @return Connection object representing the current database connection.
+     */
     public Connection getConnection() {
         return connection;
     }
