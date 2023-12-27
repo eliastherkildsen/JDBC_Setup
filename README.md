@@ -10,7 +10,7 @@ The `JDBC` class in this package is designed to simplify the process of establis
 
 1. **Setup Properties:**
 
-   Before using the `JDBC` class, make sure to set up the `db.properties` file with the required database connection information. The properties file should be located at `src/main/java/com/dmuproject/util/Database/db.properties`.
+   Before using the `JDBC` class, make sure to set up the `db.properties` file with the required database connection information. The properties file should be located at `src/main/java/util/Database/db.properties`.
 
 2. **Instantiate JDBC:**
 
