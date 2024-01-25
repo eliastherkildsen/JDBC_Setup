@@ -3,48 +3,49 @@
  * It reads database connection properties from a configuration file and creates a connection.
  *
  * @author Elias B. Therkildsen
- * @version 1.0
+ * @version 1.1
  * @since 22.12.2023
  */
+
+package mediaplayer.orpheus.model.Database;
+
+import mediaplayer.orpheus.util.AnsiColorCode;
 import java.io.*;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.Properties;
 
 public class JDBC {
 
-    // ANSI color codes for console output
-    private static final String ANSI_RESET = "\u001B[0m";
-    private static final String ANSI_YELLOW = "\u001B[33m";
-    private static final String ANSI_RED = "\u001B[31m";
-
-    // Path to the database properties file
-    private String DATBASE_PROPS_PATH = "src/util/Database/db.properties";
-
-    // Database connection URL
+    public static JDBC instance;
     private String URL;
-
-    // Connection object to interact with the database
     private Connection connection;
+    private Properties properties;
+    private PreparedStatement preparedStatement;
+    private ResultSet resultSet;
 
     /**
      * Constructs a JDBC instance and initializes a database connection.
      */
+
     public JDBC() {
-        connection = createConnection(setProps());
+         setProps();
+         createConnection(getProperties());
+         instance = this;
     }
 
     /**
      * Reads database properties from a configuration file and sets up a Properties object.
      *
-     * @return Properties object containing database connection properties.
      * @throws RuntimeException if an error occurs during file reading or property setting.
      */
-    private Properties setProps() {
-        System.out.printf("%s[JDBC] Trying to setup props.%s%n", ANSI_YELLOW, ANSI_RESET);
+    private void setProps() {
+        System.out.printf("%s[JDBC] Trying to setup props.%s%n", AnsiColorCode.ANSI_YELLOW, AnsiColorCode.ANSI_RESET);
 
         Properties properties = new Properties();
+
+        // Path to the database properties file
+        String DATBASE_PROPS_PATH = "src/main/java/mediaplayer/orpheus/model/Database/db.properties";
+
         File file = new File(DATBASE_PROPS_PATH);
         InputStream input;
 
@@ -62,18 +63,20 @@ public class JDBC {
 
                 URL = "jdbc:sqlserver://" + IP + ":" + PORT + ";databaseName=" + DATABASE_NAME;
 
-                System.out.printf("%s[JDBC] Successful in setting up props! %s%n", ANSI_YELLOW, ANSI_RESET);
+                this.properties = properties;
+
+                System.out.printf("%s[JDBC] Successful in setting up props! %s%n", AnsiColorCode.ANSI_YELLOW, AnsiColorCode.ANSI_RESET);
 
             } catch (IOException e) {
-                System.out.printf("%s[JDBC] Error! ' %s%n", ANSI_RED, ANSI_RESET);
+                System.out.printf("%s[JDBC] Error! ' %s%n", AnsiColorCode.ANSI_RED, AnsiColorCode.ANSI_RESET);
                 throw new RuntimeException(e);
             }
         } catch (FileNotFoundException e) {
-            System.out.printf("%s[JDBC] Failed to find the file 'db.properties' %s%n", ANSI_RED, ANSI_RESET);
+            System.out.printf("%s[JDBC] Failed to find the file 'db.properties' %s%n", AnsiColorCode.ANSI_RED, AnsiColorCode.ANSI_RESET);
             throw new RuntimeException(e);
         }
 
-        return properties;
+
     }
 
     /**
@@ -83,29 +86,30 @@ public class JDBC {
      */
     public void databaseClose() {
         try {
-            connection.close();
+
+            this.connection.close();
+            this.connection = null;
+
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        System.out.printf("%s[JDBC] Closing connection to JDBC..%s", ANSI_YELLOW, ANSI_RESET);
+        System.out.printf("%s[JDBC] Closing connection to JDBC..%s", AnsiColorCode.ANSI_YELLOW, AnsiColorCode.ANSI_RESET);
     }
 
     /**
      * Creates a database connection using the specified properties.
      *
      * @param properties Properties object containing database connection properties.
-     * @return Connection object representing the connection to the database.
      * @throws RuntimeException if an error occurs while creating the connection.
      */
-    private Connection createConnection(Properties properties) {
-        Connection connection = null;
+    private void createConnection(Properties properties) {
         try {
-            connection = DriverManager.getConnection(URL, properties);
+            this.connection = DriverManager.getConnection(URL, properties);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        System.out.printf("%s[JDBC] Creating connection.%s%n", ANSI_YELLOW, ANSI_RESET);
-        return connection;
+
+        System.out.printf("%s[JDBC] Creating connection.%s%n", AnsiColorCode.ANSI_YELLOW, AnsiColorCode.ANSI_RESET);
     }
 
     /**
@@ -116,4 +120,40 @@ public class JDBC {
     public Connection getConnection() {
         return connection;
     }
+
+    public Properties getProperties() {
+        return properties;
+    }
+
+    public ResultSet executeQuery(PreparedStatement query){
+
+        try {
+            resultSet = query.executeQuery();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return resultSet;
+
+    }
+
+    public void executeUpdate(PreparedStatement query){
+
+        try {
+            query.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    public static JDBC get() {
+        if (JDBC.instance == null) {
+            JDBC.instance = new JDBC();
+        }
+
+        return JDBC.instance;
+    }
+
+
 }
